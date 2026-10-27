@@ -92,11 +92,14 @@ export const Header: React.FC<HeaderProps> = ({
                 }}
               />
               <div className="flex flex-col">
-                <span className="font-bold text-lg sm:text-xl tracking-tight text-slate-900 group-hover:text-emerald-700 transition-colors">
+                <span className="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900 group-hover:text-emerald-700 transition-colors">
                   SMV TRADING
                 </span>
-                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-medium">
-                  Catalogue & Prise de Commande
+                <span className="text-[11px] font-semibold text-emerald-800 italic leading-tight">
+                  Les saveurs du monde, au cœur de vos envies.
+                </span>
+                <span className="text-[9.5px] uppercase tracking-wider text-slate-500 font-medium hidden sm:inline leading-tight pt-0.5">
+                  Importation • Distribution • Qualité • Gourmandise
                 </span>
               </div>
             </a>
@@ -134,7 +137,7 @@ export const Header: React.FC<HeaderProps> = ({
               title="Consulter les promotions et nouveaux arrivages"
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>Promos & Arrivages</span>
+              <span>Nouveautés & Arrivages</span>
             </button>
 
             {/* Notification Bell Button */}

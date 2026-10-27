@@ -1,7 +1,8 @@
-import React, { useRef } from 'react';
-import { X, Printer, Phone, Mail, Upload, Image as ImageIcon, Stamp, Trash2, CheckCircle2 } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { X, Printer, Phone, Mail, Upload, Image as ImageIcon, Stamp, Trash2, CheckCircle2, Download, FileCheck } from 'lucide-react';
 import { SMVCartItem, CustomerOrderInfo } from '../types/ecommerce';
 import { formatDT, COMMERCIAL_PHONE_DISPLAY, COMMERCIAL_EMAIL } from '../utils/formatters';
+import { generateOrderPDF } from '../utils/generateOrderPdf';
 
 interface PrintOrderModalProps {
   isOpen: boolean;
@@ -20,6 +21,8 @@ export const PrintOrderModal: React.FC<PrintOrderModalProps> = ({
 }) => {
   const logoInputRef = useRef<HTMLInputElement>(null);
   const stampInputRef = useRef<HTMLInputElement>(null);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [orderNumber] = useState(() => `CMD-${Math.floor(10000 + Math.random() * 90000)}`);
 
   if (!isOpen) return null;
 
@@ -29,6 +32,16 @@ export const PrintOrderModal: React.FC<PrintOrderModalProps> = ({
     month: 'long',
     year: 'numeric',
   });
+
+  const handleDownloadPDF = () => {
+    generateOrderPDF({
+      items,
+      customerInfo,
+      orderNumber,
+    });
+    setDownloadSuccess(true);
+    setTimeout(() => setDownloadSuccess(false), 3000);
+  };
 
   const handlePrint = () => {
     window.print();
@@ -92,11 +105,11 @@ export const PrintOrderModal: React.FC<PrintOrderModalProps> = ({
         <div className="print:hidden p-4 bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800">
           <div>
             <div className="flex items-center gap-2">
-              <Printer className="w-5 h-5 text-emerald-400" />
-              <h3 className="font-bold text-sm sm:text-base">Bon de Commande Officiel B2B · Export PDF & Impression</h3>
+              <Download className="w-5 h-5 text-emerald-400" />
+              <h3 className="font-bold text-sm sm:text-base">Bon de Commande Officiel B2B · Téléchargement PDF & Impression</h3>
             </div>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              Ajoutez votre logo et votre cachet d'entreprise avant d'imprimer ou d'enregistrer en PDF.
+              Ajoutez votre logo et votre cachet d'entreprise puis téléchargez votre bon de commande en 1 clic.
             </p>
           </div>
 
@@ -122,42 +135,73 @@ export const PrintOrderModal: React.FC<PrintOrderModalProps> = ({
             {/* Logo upload button */}
             <button
               onClick={() => logoInputRef.current?.click()}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
               title="Ajouter ou modifier le logo de votre entreprise"
             >
               <ImageIcon className="w-3.5 h-3.5 text-blue-400" />
-              <span>{customerInfo.clientLogoUrl ? 'Changer Logo' : '+ Votre Logo'}</span>
+              <span>{customerInfo.clientLogoUrl ? 'Modifier Logo' : '+ Votre Logo'}</span>
             </button>
 
             {/* Stamp upload button */}
             <button
               onClick={() => stampInputRef.current?.click()}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
               title="Ajouter ou modifier le cachet numérique de votre entreprise"
             >
               <Stamp className="w-3.5 h-3.5 text-amber-400" />
-              <span>{customerInfo.clientStampUrl ? 'Changer Cachet' : '+ Votre Cachet'}</span>
+              <span>{customerInfo.clientStampUrl ? 'Modifier Cachet' : '+ Votre Cachet'}</span>
             </button>
 
-            {/* Print / Save to PDF Button */}
+            {/* DIRECT PDF DOWNLOAD BUTTON (Primary Solution) */}
+            <button
+              onClick={handleDownloadPDF}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-2 shadow-md transition-all cursor-pointer"
+              title="Télécharger le fichier PDF directement sur votre ordinateur ou smartphone"
+            >
+              {downloadSuccess ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-200" />
+                  <span>PDF Téléchargé !</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 text-emerald-200" />
+                  <span>Télécharger le PDF</span>
+                </>
+              )}
+            </button>
+
+            {/* Print Fallback Button */}
             <button
               onClick={handlePrint}
-              className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Lancer l'impression directe"
             >
               <Printer className="w-4 h-4" />
-              <span>Imprimer / PDF</span>
+              <span className="hidden sm:inline">Imprimer</span>
             </button>
 
             {/* Close button */}
             <button
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-white rounded hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
               aria-label="Fermer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
+
+        {/* Download confirmation alert banner */}
+        {downloadSuccess && (
+          <div className="print:hidden bg-emerald-50 border-b border-emerald-200 px-4 py-2.5 flex items-center justify-between text-xs text-emerald-800">
+            <div className="flex items-center gap-2 font-medium">
+              <FileCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Votre bon de commande <strong>{orderNumber}.pdf</strong> a été généré et téléchargé dans vos Téléchargements !</span>
+            </div>
+            <span className="text-[11px] text-emerald-700 font-bold">Fichier PDF officiel</span>
+          </div>
+        )}
 
         {/* Printable Sheet (Standard A4 layout) */}
         <div className="p-6 sm:p-10 space-y-6 text-slate-900 bg-white max-h-[80vh] overflow-y-auto print:max-h-none print:overflow-visible print:p-0" id="printable-order">
@@ -174,12 +218,12 @@ export const PrintOrderModal: React.FC<PrintOrderModalProps> = ({
               />
               <div className="space-y-1">
                 <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-800 block">
-                  Fournisseur / Grossiste
+                  Fournisseur / Grossiste & Importateur
                 </span>
                 <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 leading-none">
                   SMV TRADING
                 </h1>
-                <p className="text-xs text-slate-600 font-medium">Distribution & Importation Agroalimentaire</p>
+                <p className="text-xs text-slate-600 font-medium italic">« Les saveurs du monde, au cœur de vos envies »</p>
                 <div className="text-[11px] text-slate-500 space-y-0.5 pt-0.5">
                   <p className="flex items-center gap-1">
                     <Phone className="w-3 h-3 text-slate-700" />
@@ -226,7 +270,7 @@ export const PrintOrderModal: React.FC<PrintOrderModalProps> = ({
                 BON DE COMMANDE CLIENT
               </span>
               <p className="text-sm font-mono font-bold text-slate-900">
-                N° CMD-{Math.floor(10000 + Math.random() * 90000)}
+                N° {orderNumber}
               </p>
               <p className="text-xs text-slate-500">Date d'émission : {today}</p>
             </div>

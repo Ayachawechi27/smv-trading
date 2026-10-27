@@ -65,7 +65,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                 )}
               </h2>
               <p className="text-xs text-slate-400">
-                Promotions en cours, arrivages frais et informations SMV
+                Nouveaux arrivages frais, nouveautés et informations directes SMV
               </p>
             </div>
           </div>

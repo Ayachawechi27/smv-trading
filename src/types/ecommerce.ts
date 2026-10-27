@@ -24,6 +24,7 @@ export interface SMVProduct {
   promoDescription?: string;
   isNewArrival?: boolean;
   arrivalBadge?: string;
+  arrivalDate?: string;
   promoValidUntil?: string;
 }
 

@@ -15,9 +15,12 @@ import {
   Building2,
   Send,
   ExternalLink,
-  Facebook
+  Facebook,
+  Download,
+  FileCheck
 } from 'lucide-react';
 import { SMVCartItem, CustomerOrderInfo } from '../types/ecommerce';
+import { generateOrderPDF } from '../utils/generateOrderPdf';
 import { 
   formatDT, 
   generateCommercialMessage, 
@@ -56,6 +59,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   if (!isOpen) return null;
 
   const [copied, setCopied] = useState(false);
+  const [pdfDownloaded, setPdfDownloaded] = useState(false);
+
+  const handleDownloadPDF = () => {
+    generateOrderPDF({ items, customerInfo });
+    setPdfDownloaded(true);
+    setTimeout(() => setPdfDownloaded(false), 3000);
+  };
 
   const total = useMemo(() => {
     return items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
@@ -381,13 +391,33 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             {/* Main Professional Transmission Actions */}
             <div className="space-y-2 pt-1">
               
+              {/* DIRECT PDF DOWNLOAD BUTTON */}
+              <button
+                type="button"
+                onClick={handleDownloadPDF}
+                className="w-full py-3 px-3 bg-emerald-800 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md text-center"
+                title="Télécharger directement le bon de commande officiel au format PDF"
+              >
+                {pdfDownloaded ? (
+                  <>
+                    <FileCheck className="w-4 h-4 text-emerald-300" />
+                    <span>Bon de commande PDF téléchargé !</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 text-emerald-300" />
+                    <span>Télécharger le Bon de Commande (PDF)</span>
+                  </>
+                )}
+              </button>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {/* WhatsApp Action Button */}
                 <a
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="py-3 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md text-center"
+                  className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md text-center"
                 >
                   <MessageSquare className="w-4 h-4 shrink-0" />
                   <span>Envoyer sur WhatsApp</span>
@@ -397,14 +427,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <button
                   type="button"
                   onClick={onOpenEmailModal}
-                  className="py-3 px-3 bg-blue-700 hover:bg-blue-600 text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md text-center"
+                  className="py-2.5 px-3 bg-blue-700 hover:bg-blue-600 text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md text-center"
                 >
                   <Mail className="w-4 h-4 shrink-0" />
                   <span>Envoyer par Email</span>
                 </button>
               </div>
 
-              {/* Secondary Row: SMS & Print */}
+              {/* Secondary Row: SMS & Customize Logo/Stamp */}
               <div className="grid grid-cols-2 gap-2">
                 <a
                   href={smsUrl}
@@ -417,9 +447,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <button
                   onClick={onPrintOrder}
                   className="py-2 px-3 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-lg font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer text-center"
+                  title="Ajouter votre logo, cachet d'entreprise et imprimer"
                 >
                   <Printer className="w-3.5 h-3.5 text-slate-600" />
-                  <span>Imprimer / PDF</span>
+                  <span>Cachet & Logo / Imprimer</span>
                 </button>
               </div>
 

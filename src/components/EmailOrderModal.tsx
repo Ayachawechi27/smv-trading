@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Mail, Copy, Check, ExternalLink, FileText, Printer, Stamp, Image as ImageIcon, ShieldCheck } from 'lucide-react';
+import { X, Mail, Copy, Check, ExternalLink, FileText, Printer, Stamp, Image as ImageIcon, ShieldCheck, Download, FileCheck } from 'lucide-react';
 import { SMVCartItem, CustomerOrderInfo } from '../types/ecommerce';
+import { generateOrderPDF } from '../utils/generateOrderPdf';
 import { 
   COMMERCIAL_EMAIL, 
   formatDT,
@@ -33,6 +34,13 @@ export const EmailOrderModal: React.FC<EmailOrderModalProps> = ({
   const [copied, setCopied] = useState(false);
   const [viewMode, setViewMode] = useState<'table' | 'text'>('table');
   const [sentMarked, setSentMarked] = useState(false);
+  const [pdfDownloaded, setPdfDownloaded] = useState(false);
+
+  const handleDownloadPDF = () => {
+    generateOrderPDF({ items, customerInfo });
+    setPdfDownloaded(true);
+    setTimeout(() => setPdfDownloaded(false), 3000);
+  };
 
   const subject = generateEmailSubject(items, customerInfo);
   const body = generateProfessionalEmailBody(items, customerInfo);
@@ -89,30 +97,51 @@ export const EmailOrderModal: React.FC<EmailOrderModalProps> = ({
         {/* Modal Body */}
         <div className="p-5 sm:p-6 space-y-5 max-h-[75vh] overflow-y-auto">
           
-          {/* Banner PDF avec Cachet & Logo */}
-          <div className="bg-gradient-to-r from-emerald-900 to-slate-900 text-white rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-emerald-800/60 shadow-xs">
+          {/* Banner PDF avec Téléchargement direct & Cachet/Logo */}
+          <div className="bg-gradient-to-r from-emerald-900 via-slate-900 to-slate-900 text-white rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-emerald-800/60 shadow-xs">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
                 <Stamp className="w-4 h-4 text-amber-400" />
-                <span>Bon de Commande PDF avec Cachet & Logo Personnalisés</span>
+                <span>Bon de Commande Officiel PDF (1-Clic Téléchargement)</span>
               </div>
               <p className="text-xs text-slate-300 max-w-lg leading-relaxed">
-                Générez le document PDF officiel où vous pouvez insérer le <strong>logo de votre établissement</strong> et apposer votre <strong>cachet d'entreprise</strong> avant de l'envoyer.
+                Téléchargez le document PDF officiel (.pdf) à joindre à votre email, ou personnalisez-le avec le logo et le cachet de votre établissement.
               </p>
             </div>
 
-            {onOpenPrintOrder && (
+            <div className="flex items-center gap-2 shrink-0">
               <button
-                onClick={() => {
-                  onClose();
-                  onOpenPrintOrder();
-                }}
-                className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-all shadow-md flex items-center gap-2 shrink-0 cursor-pointer"
+                type="button"
+                onClick={handleDownloadPDF}
+                className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-all shadow-md flex items-center gap-2 cursor-pointer"
               >
-                <Printer className="w-4 h-4" />
-                <span>Générer PDF / Cachet</span>
+                {pdfDownloaded ? (
+                  <>
+                    <FileCheck className="w-4 h-4 text-emerald-200" />
+                    <span>PDF Téléchargé !</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 text-emerald-200" />
+                    <span>Télécharger PDF</span>
+                  </>
+                )}
               </button>
-            )}
+
+              {onOpenPrintOrder && (
+                <button
+                  onClick={() => {
+                    onClose();
+                    onOpenPrintOrder();
+                  }}
+                  className="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-lg transition-colors border border-slate-700 flex items-center gap-1.5 cursor-pointer"
+                  title="Ajouter logo et cachet personnalisé"
+                >
+                  <Stamp className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="hidden sm:inline">Cachet / Logo</span>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Email Recipient and Subject Info Card */}

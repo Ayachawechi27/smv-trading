@@ -75,11 +75,11 @@ export const WelcomeNoveltyBanner: React.FC<WelcomeNoveltyBannerProps> = ({
           <div className="flex items-center gap-3 text-center md:text-left flex-wrap justify-center md:justify-start">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white text-amber-900 rounded-full font-black text-[11px] uppercase tracking-wider shadow-2xs">
               <Flame className="w-3.5 h-3.5 text-amber-600 fill-current animate-pulse" />
-              <span>Nouveautés & Promos SMV</span>
+              <span>Nouveaux Arrivages Frais</span>
             </span>
 
             <p className="font-medium text-amber-50 text-xs sm:text-sm">
-              <strong className="text-white font-bold">Arrivage frais direct Europe :</strong> Remises exceptionnelles jusqu'à <span className="underline decoration-amber-300 font-extrabold text-white">-15%</span> sur les Fromages Zanetti & Paysan Breton, et nouveautés charcuteries !
+              <strong className="text-white font-bold">Arrivage direct Europe :</strong> Réception de containers d'Italie et de France (Zanetti, Paysan Breton, Entremont, Volys Star). DLC optimale et traçabilité certifiée.
             </p>
           </div>
 
@@ -92,7 +92,7 @@ export const WelcomeNoveltyBanner: React.FC<WelcomeNoveltyBannerProps> = ({
               }}
               className="px-3.5 py-1.5 bg-white hover:bg-amber-50 text-amber-950 font-bold rounded-lg transition-all shadow-xs flex items-center gap-1.5 cursor-pointer text-xs group"
             >
-              <span>Découvrir les Remises</span>
+              <span>Découvrir les Arrivages</span>
               <ArrowRight className="w-3.5 h-3.5 text-amber-800 group-hover:translate-x-0.5 transition-transform" />
             </button>
 

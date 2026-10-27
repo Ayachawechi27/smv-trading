@@ -16,6 +16,7 @@ import { PrintOrderModal } from './components/PrintOrderModal';
 import { EmailOrderModal } from './components/EmailOrderModal';
 import { Footer } from './components/Footer';
 import { Toast, ToastMessage } from './components/Toast';
+import { CompanyDescriptionSection } from './components/CompanyDescriptionSection';
 
 import { SMVProduct, SMVCartItem, CustomerOrderInfo, NoveltyNotification } from './types/ecommerce';
 import { formatDT, COMMERCIAL_PHONE_DISPLAY } from './utils/formatters';
@@ -327,7 +328,7 @@ export default function App() {
       />
 
       <main className="flex-1">
-        {/* Hero Section */}
+        {/* Hero Section with Welcome Text, Slogan & Enlarged Partner Brands */}
         <Hero
           totalProductsCount={CATALOG.length}
           onExploreClick={scrollToCatalog}
@@ -335,7 +336,10 @@ export default function App() {
           onExplorePromotions={scrollToPromotions}
         />
 
-        {/* Dedicated Promotions & New Arrivals Zone */}
+        {/* Company Description & Presentation (Grossistes, HORECA, GMS Carrefour, Monoprix, MG, Anouar) */}
+        <CompanyDescriptionSection />
+
+        {/* Dedicated Promotions & New Arrivals Zone (16% Promo on Maasdam only) */}
         <PromotionsSection
           products={ACTIVE_PROMOTIONS_AND_ARRIVALS}
           onAddToCart={handleAddToCart}
@@ -385,8 +389,7 @@ export default function App() {
               </span>
               {[
                 { id: 'Toutes', label: `Toutes les Catégories (${CATALOG.length})` },
-                { id: 'Promotions', label: '🔥 En Promotion (-15%)' },
-                { id: 'Nouveautés', label: '✨ Nouveaux Arrivages' },
+                { id: 'Nouveautés', label: '✨ Nouveaux Arrivages Frais' },
                 { id: 'Fromages', label: 'Fromages (117)' },
                 { id: 'Charcuterie Halal', label: 'Charcuterie Halal (16)' },
                 { id: 'Charcuterie de Porc', label: 'Charcuterie de Porc (28)' },

@@ -3,108 +3,100 @@ import rawCatalog from './smv_catalog.json';
 
 const baseCatalog: SMVProduct[] = rawCatalog as SMVProduct[];
 
-// Map of promotional & novelty overrides by product code
+// Map of novelty & special arrival definitions by product code
+// STRICT REQUIREMENT: Only Maasdam (#7C02) has a 16% promotion. No other item has a promotional discount.
 export const PROMO_DEFINITIONS: Record<string, Partial<SMVProduct>> = {
-  '7006': {
+  // EXCLUSIVE 16% PROMO ON MAASDAM ONLY
+  '7C02': {
     isPromo: true,
-    discountPercent: 15,
-    originalPrice: 27.600,
-    originalPriceFormatted: '27,600 DT',
-    promoDescription: 'Remise spéciale 15% sur le carton 20 pièces',
-    promoValidUntil: '31 Mai 2026',
+    discountPercent: 16,
+    originalPrice: 65.0,
+    originalPriceFormatted: '65,000 DT',
+    price: 54.6, // 65.0 - 16% = 54.600 DT
+    priceFormatted: '54,600 DT',
+    promoDescription: 'Offre Exceptionnelle : -16% de remise immédiate sur le Maasdam Holland 13 KG Veldhuyzen (54,600 DT au lieu de 65,000 DT)',
+    arrivalBadge: '-16% PROMOTION',
+    isNewArrival: false,
+    promoValidUntil: 'Offre en cours',
   },
-  '7016': {
-    isPromo: true,
-    discountPercent: 10,
-    originalPrice: 17.500,
-    originalPriceFormatted: '17,500 DT',
-    promoDescription: 'Offre promotionnelle Madame Loïk Ail & Fines Herbes',
-    promoValidUntil: '31 Mai 2026',
-  },
-  '7025': {
-    isPromo: true,
-    discountPercent: 10,
-    originalPrice: 21.000,
-    originalPriceFormatted: '21,000 DT',
-    promoDescription: 'Prix préférentiel Brique Tradition Paysan Breton',
-    promoValidUntil: '15 Juin 2026',
-  },
+
+  // NEW ARRIVALS ONLY (No price discounts, strictly arrivals/novelties)
   '7192': {
     isNewArrival: true,
     arrivalBadge: 'Arrivage Frais Italie',
     promoDescription: 'Dernier arrivage direct Zanetti Italie (DLC fraîche garantie 30 jours)',
-  },
-  '7106': {
-    isPromo: true,
-    discountPercent: 15,
-    originalPrice: 31.800,
-    originalPriceFormatted: '31,800 DT',
-    promoDescription: 'Offre sélection Parmigiano Reggiano AOP affiné',
-    promoValidUntil: '31 Mai 2026',
-  },
-  '7651': {
-    isPromo: true,
-    discountPercent: 12,
-    originalPrice: 148.000,
-    originalPriceFormatted: '148,000 DT',
-    promoDescription: 'Arrivage Comté Extra Fruité AOP Entremont affinage noble',
-    promoValidUntil: '31 Mai 2026',
-  },
-  '7922': {
-    isPromo: true,
-    discountPercent: 12,
-    originalPrice: 26.900,
-    originalPriceFormatted: '26,900 DT',
-    promoDescription: 'Remise raclette fondante Entremont 250g',
-    promoValidUntil: '15 Juin 2026',
-  },
-  '7C15': {
-    isNewArrival: true,
-    arrivalBadge: 'Exclusivité Basiron',
-    promoDescription: 'Gouda vert au pesto d’origine hollandaise 4.5kg',
-  },
-  '6110': {
-    isPromo: true,
-    discountPercent: 12,
-    originalPrice: 142.000,
-    originalPriceFormatted: '142,000 DT',
-    promoDescription: 'Offre spéciale Volys Star charcuterie halal de dinde fumée',
-    promoValidUntil: '31 Mai 2026',
-  },
-  '5207': {
-    isPromo: true,
-    discountPercent: 17,
-    originalPrice: 14.500,
-    originalPriceFormatted: '14,500 DT',
-    promoDescription: 'Remise terrine de campagne bretonne Mère Lalie 180g',
-    promoValidUntil: '31 Mai 2026',
-  },
-  '5305': {
-    isPromo: true,
-    discountPercent: 14,
-    originalPrice: 17.500,
-    originalPriceFormatted: '17,500 DT',
-    promoDescription: 'Offre Jambon Serrano Bastides 100g tranché fin',
-    promoValidUntil: '15 Juin 2026',
-  },
-  '7610': {
-    isNewArrival: true,
-    arrivalBadge: 'Nouvel Arrivage Frais',
-    promoDescription: 'Caprice des Dieux 200g fraîchement réceptionné',
+    arrivalDate: 'Réception récente',
   },
   '7173': {
     isNewArrival: true,
     arrivalBadge: 'Arrivage Frais',
-    promoDescription: 'Mozzarella Di Bufala Zanetti 125g arrivage direct',
+    promoDescription: 'Mozzarella Di Bufala Zanetti 125g arrivage direct certifié AOP',
+    arrivalDate: 'Réception récente',
+  },
+  '7016': {
+    isNewArrival: true,
+    arrivalBadge: 'Arrivage Frais France',
+    promoDescription: 'Madame Loïk Ail & Fines Herbes 150g (Paysan Breton) - fraîcheur garantie',
+    arrivalDate: 'Réception récente',
+  },
+  '7006': {
+    isNewArrival: true,
+    arrivalBadge: 'Produit Vedette',
+    promoDescription: 'Emmental Portion 220g Paysan Breton (carton 20 pièces)',
+  },
+  '7025': {
+    isNewArrival: true,
+    arrivalBadge: 'Nouveau Stock',
+    promoDescription: 'Brique Tradition 180g Paysan Breton DLC fraîche',
+  },
+  '7106': {
+    isNewArrival: true,
+    arrivalBadge: 'Affinage AOP',
+    promoDescription: 'Parmigiano Reggiano AOP Zanetti 150g sélection noble',
+  },
+  '7651': {
+    isNewArrival: true,
+    arrivalBadge: 'Sélection Prestige',
+    promoDescription: 'Comté Extra Fruité AOP Entremont affinage noble',
+  },
+  '7922': {
+    isNewArrival: true,
+    arrivalBadge: 'Arrivage Direct',
+    promoDescription: 'Raclette savoureuse Entremont 250g (6 pièces par carton)',
+  },
+  '7C15': {
+    isNewArrival: true,
+    arrivalBadge: 'Exclusivité Basiron',
+    promoDescription: 'Gouda vert au pesto d’origine hollandaise 4.5kg aux herbes aromatiques',
+  },
+  '6110': {
+    isNewArrival: true,
+    arrivalBadge: 'Nouveau Stock Halal',
+    promoDescription: 'Filet de dinde fumé Volys Star charcuterie de volaille halal certifiée',
+  },
+  '5207': {
+    isNewArrival: true,
+    arrivalBadge: 'Saveur Tradition',
+    promoDescription: 'Véritable terrine de campagne bretonne Mère Lalie 180g',
+  },
+  '5305': {
+    isNewArrival: true,
+    arrivalBadge: 'Arrivage Espagne',
+    promoDescription: 'Jambon Serrano Bastides 100g tranché fin (DLC 90 jours)',
+  },
+  '7610': {
+    isNewArrival: true,
+    arrivalBadge: 'Nouvel Arrivage Frais',
+    promoDescription: 'Caprice des Dieux 200g fraîchement réceptionné en direct de France',
   },
   '5316': {
     isNewArrival: true,
     arrivalBadge: 'Nouveau Format 300g',
-    promoDescription: 'Mini Rosette Bastides 300g format spécial traiteur',
+    promoDescription: 'Mini Rosette Bastides 300g format spécial traiteur et restauration',
   }
 };
 
-// Return enriched catalog products with promotion & arrival flags
+// Return enriched catalog products with novelty & arrival flags
 export const ENRICHED_CATALOG: SMVProduct[] = baseCatalog.map((product) => {
   const overrides = PROMO_DEFINITIONS[product.code];
   if (overrides) {
@@ -116,7 +108,7 @@ export const ENRICHED_CATALOG: SMVProduct[] = baseCatalog.map((product) => {
   return product;
 });
 
-// Extracted list of all active promotions & arrivals
+// Extracted list of all active novelties & arrivals
 export const ACTIVE_PROMOTIONS_AND_ARRIVALS: SMVProduct[] = ENRICHED_CATALOG.filter(
   (p) => p.isPromo || p.isNewArrival
 );
@@ -124,8 +116,18 @@ export const ACTIVE_PROMOTIONS_AND_ARRIVALS: SMVProduct[] = ENRICHED_CATALOG.fil
 // Initial notifications list for client
 export const INITIAL_NOTIFICATIONS: NoveltyNotification[] = [
   {
+    id: 'notif-promo-maasdam',
+    title: 'Promotion Exclusive : -16% sur le Maasdam Holland 13 KG',
+    description: 'Offre spéciale en cours : Maasdam Holland 13 KG Veldhuyzen (#7C02) au tarif préférentiel de 54,600 DT/kg au lieu de 65,000 DT (-16% de remise immédiate).',
+    date: 'En cours',
+    type: 'promo',
+    productCode: '7C02',
+    discountBadge: '-16% REMISE',
+    isRead: false,
+  },
+  {
     id: 'notif-1',
-    title: 'Arrivage Frais : Burrata & Mozzarella di Bufala Zanetti',
+    title: 'Arrivage Frais : Burrata & Mozzarella di Bufala Zanetti (Italie)',
     description: 'Nouveau container direct d’Italie réceptionné dans nos entrepôts frigorifiques. DLC optimale garantie.',
     date: 'Aujourd’hui',
     type: 'arrival',
@@ -135,32 +137,32 @@ export const INITIAL_NOTIFICATIONS: NoveltyNotification[] = [
   },
   {
     id: 'notif-2',
-    title: 'Remise -15% sur le Parmigiano Reggiano 150g & Emmental Portion',
-    description: 'Offre exclusive grossiste valable jusqu’au 31 mai 2026 sur les références #7106 et #7006.',
+    title: 'Nouveaux Arrivages : Comté AOP & Fromages Affinés Entremont',
+    description: 'Arrivage direct de France : Comté Extra Fruité AOP #7651 et Parmigiano Reggiano AOP #7106.',
     date: 'Cette semaine',
-    type: 'promo',
-    productCode: '7106',
-    discountBadge: '-15% Remise',
+    type: 'arrival',
+    productCode: '7651',
+    discountBadge: 'Arrivage Direct',
     isRead: false,
   },
   {
     id: 'notif-3',
-    title: 'Offre Spéciale Volys Star & Charcuterie de Volaille Halal',
-    description: 'Profitez de tarifs préférentiels sur le filet de dinde fumé #6110 et les terrines bretonnes.',
+    title: 'Gamme Fraîche Paysan Breton : Mme Loïk & Brique Tradition',
+    description: 'Stocks complets disponibles sur Mme Loïk Ail & Fines Herbes #7016 et Emmental Portion #7006.',
     date: 'Cette semaine',
-    type: 'promo',
-    productCode: '6110',
-    discountBadge: '-12% Remise',
+    type: 'arrival',
+    productCode: '7016',
+    discountBadge: 'Stock Frais',
     isRead: false,
   },
   {
     id: 'notif-4',
-    title: 'Nouvelle Référence : Gouda Pesto Vert & Zaatar Basiron',
-    description: 'Découvrez notre nouvelle gamme de fromages de spécialité hollandais aux herbes et épices fines.',
+    title: 'Nouvelle Référence : Gouda Pesto Vert & Spécialités Basiron',
+    description: 'Découvrez notre gamme de fromages de spécialité hollandais aux herbes et épices fines.',
     date: 'Récemment',
     type: 'arrival',
     productCode: '7C15',
-    discountBadge: 'Nouveauté 2026',
+    discountBadge: 'Nouveauté',
     isRead: false,
   },
 ];

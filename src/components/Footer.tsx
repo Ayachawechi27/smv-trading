@@ -21,15 +21,23 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPdfModal }) => {
                 alt="SMV TRADING"
                 className="h-10 w-auto object-contain bg-white rounded p-1"
               />
-              <span className="font-bold text-xl text-white tracking-tight">SMV TRADING</span>
+              <div className="flex flex-col">
+                <span className="font-bold text-xl text-white tracking-tight">SMV TRADING</span>
+                <span className="text-xs font-semibold text-emerald-400 italic">
+                  Les saveurs du monde, au cœur de vos envies.
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-slate-400">
+                  Importation • Distribution • Qualité • Gourmandise
+                </span>
+              </div>
             </div>
             <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
-              Grossiste et importateur de produits agroalimentaires de premier choix en Tunisie : 
-              fromages AOP et de tradition, charcuterie Halal et spécialités de porc.
+              Importateur et distributeur de produits alimentaires en Tunisie : fromages AOP, charcuteries halal et spécialités d'Europe. 
+              Retrouvez nos sélections en gros pour professionnels et en rayon chez Carrefour, Monoprix, MG et Anouar.
             </p>
             <div className="pt-1 text-xs text-slate-400 space-y-1">
-              <p>Catalogue des prix officiel — Mise à jour Septembre 2025 / 2026</p>
-              <p className="text-emerald-400 font-medium">Distribution active sur toute la Tunisie</p>
+              <p>Catalogue des prix officiel — Mise à jour 2025 / 2026</p>
+              <p className="text-emerald-400 font-medium">Distribution active sur toute la Tunisie (Grand Tunis, Djerba, Sahel...)</p>
             </div>
             <div className="pt-2">
               <a

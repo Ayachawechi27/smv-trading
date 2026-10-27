@@ -36,14 +36,20 @@ export const PromotionsSection: React.FC<PromotionsSectionProps> = ({
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [addedSuccessCode, setAddedSuccessCode] = useState<string | null>(null);
 
-  // Filter products according to selected tab
-  const displayedItems = products.filter((item) => {
-    if (activeFilter === 'promos') return item.isPromo;
-    if (activeFilter === 'arrivals') return item.isNewArrival;
-    if (activeFilter === 'fromages') return item.category.toLowerCase().includes('fromage');
-    if (activeFilter === 'charcuterie') return item.category.toLowerCase().includes('charcuterie');
-    return true; // 'all'
-  });
+  // Filter products according to selected tab and prioritize promotional items
+  const displayedItems = products
+    .filter((item) => {
+      if (activeFilter === 'promos') return item.isPromo;
+      if (activeFilter === 'arrivals') return item.isNewArrival;
+      if (activeFilter === 'fromages') return item.category.toLowerCase().includes('fromage');
+      if (activeFilter === 'charcuterie') return item.category.toLowerCase().includes('charcuterie');
+      return true; // 'all'
+    })
+    .sort((a, b) => {
+      if (a.isPromo && !b.isPromo) return -1;
+      if (!a.isPromo && b.isPromo) return 1;
+      return 0;
+    });
 
   const getQty = (code: string) => quantities[code] || 1;
 
@@ -76,16 +82,16 @@ export const PromotionsSection: React.FC<PromotionsSectionProps> = ({
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 border border-amber-300/80 rounded-full text-amber-900 text-xs font-bold tracking-wide shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-amber-700 animate-spin-slow" />
-              <span>Espace Nouveautés & Offres Commerciales</span>
+              <span>Espace Nouveautés & Arrivages Directs</span>
             </div>
             
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
-              Promotions du Moment & Nouveaux Arrivages
+              Nouveautés & Nouveaux Arrivages Frais
             </h2>
             
             <p className="text-sm text-slate-600 leading-relaxed">
-              Profitez de nos remises exceptionnelles sur une sélection de fromages AOP et charcuteries de prestige, 
-              directement importés d'Europe avec traçabilité et DLC garanties.
+              Découvrez notre sélection de nouveautés et arrivages récents en direct d'Europe : fromages d'exception et charcuteries de prestige, 
+              directement importés avec traçabilité et DLC garanties.
             </p>
           </div>
 
@@ -114,17 +120,19 @@ export const PromotionsSection: React.FC<PromotionsSectionProps> = ({
             Toutes les Nouveautés ({products.length})
           </button>
 
-          <button
-            onClick={() => setActiveFilter('promos')}
-            className={`px-4 py-2 text-xs font-bold rounded-lg whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
-              activeFilter === 'promos'
-                ? 'bg-amber-600 text-white shadow-xs'
-                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            <Percent className="w-3.5 h-3.5" />
-            <span>Remises & Promotions</span>
-          </button>
+          {products.some((p) => p.isPromo) && (
+            <button
+              onClick={() => setActiveFilter('promos')}
+              className={`px-4 py-2 text-xs font-bold rounded-lg whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeFilter === 'promos'
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <Percent className="w-3.5 h-3.5" />
+              <span>Remises & Promotions</span>
+            </button>
+          )}
 
           <button
             onClick={() => setActiveFilter('arrivals')}
@@ -270,8 +278,10 @@ export const PromotionsSection: React.FC<PromotionsSectionProps> = ({
                     
                     <div className="flex items-baseline justify-between">
                       <div className="flex flex-col">
-                        <span className="text-[11px] text-slate-500 font-medium">Tarif préférentiel :</span>
-                        {product.originalPriceFormatted && (
+                        <span className="text-[11px] text-slate-500 font-medium">
+                          {product.isPromo && product.originalPriceFormatted ? 'Tarif préférentiel :' : 'Prix unitaire catalogue :'}
+                        </span>
+                        {product.isPromo && product.originalPriceFormatted && (
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs text-slate-400 line-through font-mono">
                               {product.originalPriceFormatted}
@@ -286,7 +296,7 @@ export const PromotionsSection: React.FC<PromotionsSectionProps> = ({
                       </div>
 
                       <div className="text-right">
-                        <span className="text-lg font-extrabold font-mono text-amber-700 tabular-nums">
+                        <span className="text-lg font-extrabold font-mono text-emerald-800 tabular-nums">
                           {formatDT(product.price)}
                         </span>
                         {product.isPerKg && (
