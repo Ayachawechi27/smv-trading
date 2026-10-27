@@ -1,0 +1,6 @@
+{
+  "name": "SMV Trading - Catalogue & Commandes",
+  "description": "Catalogue officiel et commande directe SMV Trading : Fromages raffinés, Charcuterie Halal et Porc. Commande directe par WhatsApp et Commercial.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
