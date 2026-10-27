@@ -4,6 +4,7 @@ export const COMMERCIAL_PHONE = "58779438";
 export const COMMERCIAL_PHONE_DISPLAY = "58 779 438";
 export const COMMERCIAL_PHONE_INTL = "21658779438";
 export const COMMERCIAL_EMAIL = "commercial@smv-trading.com";
+export const COMMERCIAL_FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61595222526957&locale=fr_FR";
 
 /**
  * Format DT with 3 decimals (Tunisian Millimes), e.g. "285 728,380 DT"
@@ -70,7 +71,7 @@ export function generateEmailSubject(items: SMVCartItem[], customer: CustomerOrd
 }
 
 /**
- * Generates structured, highly professional email body
+ * Generates structured, highly professional email body formatted as a clean table (WITHOUT DLC)
  */
 export function generateProfessionalEmailBody(items: SMVCartItem[], customer: CustomerOrderInfo): string {
   const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
@@ -80,39 +81,49 @@ export function generateProfessionalEmailBody(items: SMVCartItem[], customer: Cu
     year: 'numeric',
   });
 
-  const lines = items.map((item, idx) => {
+  // Table rows without DLC as requested
+  const tableRows = items.map((item, idx) => {
     const lineTotal = item.product.price * item.quantity;
     const unit = item.product.isPerKg ? 'kg' : 'pcs';
-    return `${idx + 1}. [Code #${item.product.code}] ${item.product.name} (${item.product.brand})\n   • Quantité : ${item.quantity} ${unit}\n   • Prix unitaire : ${formatDT(item.product.price)}\n   • Total ligne : ${formatDT(lineTotal)}\n   • DLC : ${item.product.dlc} | Cond. : ${item.product.packing}`;
+    const num = String(idx + 1).padEnd(2, ' ');
+    const code = String(item.product.code).padEnd(6, ' ');
+    const name = item.product.name.slice(0, 32).padEnd(32, ' ');
+    const brand = item.product.brand.slice(0, 16).padEnd(16, ' ');
+    const packing = item.product.packing.slice(0, 20).padEnd(20, ' ');
+    const qty = `${item.quantity} ${unit}`.padStart(10, ' ');
+    const pu = formatDT(item.product.price).padStart(12, ' ');
+    const tot = formatDT(lineTotal).padStart(14, ' ');
+    return `| ${num} | ${code} | ${name} | ${brand} | ${packing} | ${qty} | ${pu} | ${tot} |`;
   });
+
+  const divider = "+----+--------+----------------------------------+------------------+----------------------+------------+--------------+----------------+";
+  const header =  "| N° | Code   | Désignation Article              | Fournisseur      | Conditionnement      | Quantité   | Prix Unit.   | Total Ligne    |";
+
+  const tableText = `${divider}\n${header}\n${divider}\n${tableRows.join('\n')}\n${divider}`;
 
   return `À l'attention du Service Commercial SMV Trading,
 
 Bonjour,
 
-Veuillez trouver ci-dessous le détail de notre commande issue du catalogue officiel SMV Trading (Date : ${today}) :
+Veuillez trouver ci-dessous le bon de commande de notre établissement issu du catalogue officiel SMV Trading (Date : ${today}) :
 
-======================================================================
-DÉTAIL DES ARTICLES COMMANDÉS :
-======================================================================
-${lines.join('\n\n')}
+TABLEAU DES ARTICLES COMMANDÉS :
+${tableText}
 
-======================================================================
-TOTAL INDICATIF DE LA COMMANDE : ${formatDT(total)}
-======================================================================
+TOTAL INDICATIF : ${formatDT(total)}
 
-INFORMATIONS DU CLIENT & LIVRAISON :
+COORDONNÉES CLIENT & FACTURATION :
 • Nom du client / Responsable : ${customer.clientName || 'aya'}
-• Téléphone de contact : ${customer.clientPhone || '12457482'}
-${customer.clientEmail ? `• Email de contact : ${customer.clientEmail}\n` : ''}• Zone de livraison : ${customer.deliveryZone || 'djerba'}
-${customer.companyName ? `• Société / Enseigne : ${customer.companyName}\n` : ''}${customer.address ? `• Adresse exacte : ${customer.address}\n` : ''}${customer.notes ? `• Remarques / Instructions : ${customer.notes}\n` : ''}
-Merci de bien vouloir nous accuser réception de cette commande et nous confirmer la date de livraison ainsi que les disponibilités en stock.
+• Téléphone : ${customer.clientPhone || '12457482'}
+${customer.clientEmail ? `• Email professionnel : ${customer.clientEmail}\n` : ''}• Zone de livraison : ${customer.deliveryZone || 'djerba'}
+${customer.companyName ? `• Établissement / Société : ${customer.companyName}\n` : ''}${customer.address ? `• Adresse exacte de livraison : ${customer.address}\n` : ''}${customer.notes ? `• Remarques : ${customer.notes}\n` : ''}
+Note : Le bon de commande officiel (PDF) avec le cachet et la signature de notre entreprise est également disponible pour validation comptable.
 
-Dans l'attente de votre retour,
+Merci de bien vouloir nous accuser réception et nous confirmer la disponibilité ainsi que la date de livraison.
 
 Cordialement,
-${customer.clientName || 'Le Client'}
-${customer.clientPhone ? `Tél : ${customer.clientPhone}` : ''}`;
+${customer.clientName || 'Le Responsable'}
+${customer.companyName ? `${customer.companyName}\n` : ''}${customer.clientPhone ? `Tél : ${customer.clientPhone}` : ''}`;
 }
 
 /**

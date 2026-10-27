@@ -16,6 +16,26 @@ export interface SMVProduct {
   isPerKg: boolean;
   image: string;
   page: number;
+  // Promotion & Novelty extensions
+  isPromo?: boolean;
+  originalPrice?: number;
+  originalPriceFormatted?: string;
+  discountPercent?: number;
+  promoDescription?: string;
+  isNewArrival?: boolean;
+  arrivalBadge?: string;
+  promoValidUntil?: string;
+}
+
+export interface NoveltyNotification {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  type: 'promo' | 'arrival' | 'announcement';
+  productCode?: string;
+  discountBadge?: string;
+  isRead?: boolean;
 }
 
 export interface SMVCartItem {
@@ -31,6 +51,8 @@ export interface CustomerOrderInfo {
   companyName?: string;
   address?: string;
   notes?: string;
+  clientLogoUrl?: string;
+  clientStampUrl?: string;
 }
 
 export interface PlacedOrder {
@@ -42,3 +64,4 @@ export interface PlacedOrder {
   customer: CustomerOrderInfo;
   messageText: string;
 }
+

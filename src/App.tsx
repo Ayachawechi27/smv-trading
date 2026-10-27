@@ -6,6 +6,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
+import { PromotionsSection } from './components/PromotionsSection';
+import { WelcomeNoveltyBanner } from './components/WelcomeNoveltyBanner';
+import { NotificationDrawer } from './components/NotificationDrawer';
 import { ProductCard } from './components/ProductCard';
 import { CartDrawer } from './components/CartDrawer';
 import { PDFCatalogViewerModal } from './components/PDFCatalogViewerModal';
@@ -14,21 +17,21 @@ import { EmailOrderModal } from './components/EmailOrderModal';
 import { Footer } from './components/Footer';
 import { Toast, ToastMessage } from './components/Toast';
 
-import { SMVProduct, SMVCartItem, CustomerOrderInfo, ProductCategory } from './types/ecommerce';
+import { SMVProduct, SMVCartItem, CustomerOrderInfo, NoveltyNotification } from './types/ecommerce';
 import { formatDT, COMMERCIAL_PHONE_DISPLAY } from './utils/formatters';
-import rawCatalog from './data/smv_catalog.json';
+import { ENRICHED_CATALOG, ACTIVE_PROMOTIONS_AND_ARRIVALS, INITIAL_NOTIFICATIONS } from './data/promotions';
 import { 
   Filter, 
   Search, 
   RotateCcw, 
   FileText, 
   ArrowUpDown, 
-  Building,
-  CheckCircle2,
-  Sparkles
+  Sparkles,
+  Percent,
+  TrendingUp
 } from 'lucide-react';
 
-const CATALOG: SMVProduct[] = rawCatalog as SMVProduct[];
+const CATALOG: SMVProduct[] = ENRICHED_CATALOG;
 
 export default function App() {
   // Customer info initialized with user's example
@@ -47,7 +50,7 @@ export default function App() {
     };
   });
 
-  // Cart initialized with the user's prompt example so it demonstrates the exact order message immediately!
+  // Cart initialized with the user's prompt example
   const [cart, setCart] = useState<SMVCartItem[]>(() => {
     try {
       const saved = localStorage.getItem('smv_cart');
@@ -65,6 +68,22 @@ export default function App() {
     if (item7048) defaultItems.push({ product: item7048, quantity: 20110 });
 
     return defaultItems;
+  });
+
+  // Notifications system state
+  const [notifications, setNotifications] = useState<NoveltyNotification[]>(() => {
+    try {
+      const saved = localStorage.getItem('smv_notifications');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return INITIAL_NOTIFICATIONS;
+  });
+  const [isNotificationDrawerOpen, setIsNotificationDrawerOpen] = useState(false);
+  const [browserNotificationsEnabled, setBrowserNotificationsEnabled] = useState<boolean>(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      return Notification.permission === 'granted';
+    }
+    return false;
   });
 
   // Navigation & Filtering
@@ -89,6 +108,10 @@ export default function App() {
     localStorage.setItem('smv_customer', JSON.stringify(customerInfo));
   }, [customerInfo]);
 
+  useEffect(() => {
+    localStorage.setItem('smv_notifications', JSON.stringify(notifications));
+  }, [notifications]);
+
   // Unique brands list
   const availableBrands = useMemo(() => {
     const brandsSet = new Set<string>();
@@ -102,8 +125,12 @@ export default function App() {
   const filteredProducts = useMemo(() => {
     let list = [...CATALOG];
 
-    // Category filter
-    if (activeCategory !== 'Toutes') {
+    // Category / Special filter
+    if (activeCategory === 'Promotions') {
+      list = list.filter((p) => p.isPromo);
+    } else if (activeCategory === 'Nouveautés') {
+      list = list.filter((p) => p.isNewArrival);
+    } else if (activeCategory !== 'Toutes') {
       list = list.filter((p) => p.category.toLowerCase().includes(activeCategory.toLowerCase()));
     }
 
@@ -190,6 +217,69 @@ export default function App() {
     setCart([]);
   };
 
+  // Notification handlers
+  const handleMarkNotificationAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+    );
+  };
+
+  const handleMarkAllNotificationsAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+  };
+
+  const handleSelectProductFromNotification = (productCode: string) => {
+    const product = CATALOG.find((p) => p.code === productCode);
+    if (product) {
+      setSearchQuery(productCode);
+      setActiveCategory('Toutes');
+      setSelectedBrand('Toutes');
+      scrollToCatalog();
+      setToast({
+        id: `${Date.now()}`,
+        title: `Produit sélectionné : #${product.code}`,
+        description: product.name,
+        type: 'info',
+      });
+    }
+  };
+
+  const handleRequestBrowserNotifications = () => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          setBrowserNotificationsEnabled(true);
+          setToast({
+            id: `${Date.now()}`,
+            title: 'Notifications activées avec succès !',
+            description: 'Vous recevrez directement les alertes de nouveaux arrivages et remises SMV Trading.',
+            type: 'success',
+          });
+          try {
+            new Notification('SMV Trading - Alertes Activées', {
+              body: 'Vous recevrez les nouveautés et promotions fraîches en temps réel !',
+              icon: '/products/catalog/smv_trading_logo.png',
+            });
+          } catch {}
+        } else {
+          setToast({
+            id: `${Date.now()}`,
+            title: 'Permission refusée',
+            description: 'Vous pouvez activer les notifications dans les paramètres de votre navigateur.',
+            type: 'info',
+          });
+        }
+      });
+    } else {
+      setToast({
+        id: `${Date.now()}`,
+        title: 'Notifications non supportées',
+        description: 'Votre navigateur actuel ne supporte pas les notifications push.',
+        type: 'info',
+      });
+    }
+  };
+
   // Cart total calculations
   const totalCartCount = useMemo(() => {
     return cart.reduce((acc, item) => acc + item.quantity, 0);
@@ -199,13 +289,28 @@ export default function App() {
     return cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   }, [cart]);
 
+  const unreadNotificationsCount = useMemo(() => {
+    return notifications.filter((n) => !n.isRead).length;
+  }, [notifications]);
+
   const scrollToCatalog = () => {
     document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToPromotions = () => {
+    document.getElementById('promotions-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-emerald-600 selection:text-white">
       
+      {/* Welcome Novelty Alert Banner on Site Opening */}
+      <WelcomeNoveltyBanner
+        onExplorePromotions={scrollToPromotions}
+        onOpenNotifications={() => setIsNotificationDrawerOpen(true)}
+        unreadCount={unreadNotificationsCount}
+      />
+
       {/* Top Header */}
       <Header
         cartCount={totalCartCount}
@@ -216,6 +321,9 @@ export default function App() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onOpenPdfModal={() => setIsPdfModalOpen(true)}
+        unreadNotificationsCount={unreadNotificationsCount}
+        onOpenNotifications={() => setIsNotificationDrawerOpen(true)}
+        onScrollToPromotions={scrollToPromotions}
       />
 
       <main className="flex-1">
@@ -224,6 +332,15 @@ export default function App() {
           totalProductsCount={CATALOG.length}
           onExploreClick={scrollToCatalog}
           onOpenPdfModal={() => setIsPdfModalOpen(true)}
+          onExplorePromotions={scrollToPromotions}
+        />
+
+        {/* Dedicated Promotions & New Arrivals Zone */}
+        <PromotionsSection
+          products={ACTIVE_PROMOTIONS_AND_ARRIVALS}
+          onAddToCart={handleAddToCart}
+          cart={cart}
+          onExploreFullCatalog={scrollToCatalog}
         />
 
         {/* Catalog Main Section */}
@@ -261,13 +378,15 @@ export default function App() {
           {/* Filtering & Sorting Controls Bar */}
           <div className="space-y-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs">
             
-            {/* Category Segmented Buttons */}
+            {/* Category Segmented Buttons with Promos and New Arrivals included */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mr-2 shrink-0">
                 Catégorie :
               </span>
               {[
                 { id: 'Toutes', label: `Toutes les Catégories (${CATALOG.length})` },
+                { id: 'Promotions', label: '🔥 En Promotion (-15%)' },
+                { id: 'Nouveautés', label: '✨ Nouveaux Arrivages' },
                 { id: 'Fromages', label: 'Fromages (117)' },
                 { id: 'Charcuterie Halal', label: 'Charcuterie Halal (16)' },
                 { id: 'Charcuterie de Porc', label: 'Charcuterie de Porc (28)' },
@@ -277,7 +396,9 @@ export default function App() {
                   onClick={() => setActiveCategory(cat.id)}
                   className={`px-3.5 py-2 text-xs font-bold rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
                     activeCategory === cat.id
-                      ? 'bg-slate-900 text-white shadow-xs'
+                      ? cat.id === 'Promotions'
+                        ? 'bg-amber-600 text-white shadow-xs'
+                        : 'bg-slate-900 text-white shadow-xs'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
@@ -313,7 +434,7 @@ export default function App() {
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="7016, 7025, brie, emmental..."
+                    placeholder="7016, 7025, burrata, brie..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 p-2 font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
@@ -365,7 +486,7 @@ export default function App() {
             <span>
               Affichage de <strong>{filteredProducts.length}</strong> article{filteredProducts.length > 1 ? 's' : ''}
               {selectedBrand !== 'Toutes' ? ` chez ${selectedBrand}` : ''}
-              {activeCategory !== 'Toutes' ? ` dans ${activeCategory}` : ''}
+              {activeCategory !== 'Toutes' ? ` (${activeCategory})` : ''}
             </span>
             <span className="text-slate-400">Tarifs indicatifs HT / TTC en Dinars Tunisiens</span>
           </div>
@@ -461,6 +582,10 @@ export default function App() {
         onClose={() => setIsEmailModalOpen(false)}
         items={cart}
         customerInfo={customerInfo}
+        onOpenPrintOrder={() => {
+          setIsEmailModalOpen(false);
+          setIsPrintModalOpen(true);
+        }}
         onSentConfirm={() => {
           setToast({
             id: `${Date.now()}`,
@@ -469,6 +594,18 @@ export default function App() {
             type: 'success',
           });
         }}
+      />
+
+      {/* Notification Drawer (Center of Alerts & Novelties) */}
+      <NotificationDrawer
+        isOpen={isNotificationDrawerOpen}
+        onClose={() => setIsNotificationDrawerOpen(false)}
+        notifications={notifications}
+        onMarkAsRead={handleMarkNotificationAsRead}
+        onMarkAllAsRead={handleMarkAllNotificationsAsRead}
+        onSelectProductNotification={handleSelectProductFromNotification}
+        browserNotificationsEnabled={browserNotificationsEnabled}
+        onRequestBrowserNotifications={handleRequestBrowserNotifications}
       />
 
       {/* PDF Catalog Modal */}
@@ -483,6 +620,7 @@ export default function App() {
         onClose={() => setIsPrintModalOpen(false)}
         items={cart}
         customerInfo={customerInfo}
+        onCustomerInfoChange={setCustomerInfo}
       />
 
       {/* Toast Notification */}

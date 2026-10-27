@@ -1,6 +1,6 @@
 import React from 'react';
-import { Phone, Mail, MessageSquare, FileText, CheckCircle } from 'lucide-react';
-import { COMMERCIAL_PHONE_DISPLAY, COMMERCIAL_PHONE_INTL, COMMERCIAL_EMAIL } from '../utils/formatters';
+import { Phone, Mail, MessageSquare, FileText, CheckCircle, Facebook } from 'lucide-react';
+import { COMMERCIAL_PHONE_DISPLAY, COMMERCIAL_PHONE_INTL, COMMERCIAL_EMAIL, COMMERCIAL_FACEBOOK_URL } from '../utils/formatters';
 
 interface FooterProps {
   onOpenPdfModal: () => void;
@@ -27,15 +27,26 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPdfModal }) => {
               Grossiste et importateur de produits agroalimentaires de premier choix en Tunisie : 
               fromages AOP et de tradition, charcuterie Halal et spécialités de porc.
             </p>
-            <div className="pt-2 text-xs text-slate-400 space-y-1">
+            <div className="pt-1 text-xs text-slate-400 space-y-1">
               <p>Catalogue des prix officiel — Mise à jour Septembre 2025 / 2026</p>
               <p className="text-emerald-400 font-medium">Distribution active sur toute la Tunisie</p>
+            </div>
+            <div className="pt-2">
+              <a
+                href={COMMERCIAL_FACEBOOK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-medium transition-colors"
+              >
+                <Facebook className="w-3.5 h-3.5 fill-current text-blue-400" />
+                <span>Page Facebook Officielle</span>
+              </a>
             </div>
           </div>
 
           <div className="md:col-span-4 space-y-3">
             <h4 className="text-xs uppercase tracking-wider font-bold text-white">Contact Service Commercial</h4>
-            <ul className="space-y-2 text-xs">
+            <ul className="space-y-2.5 text-xs">
               <li>
                 <a
                   href={`tel:+${COMMERCIAL_PHONE_INTL}`}
@@ -52,6 +63,17 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPdfModal }) => {
                 >
                   <Mail className="w-4 h-4 text-emerald-400" />
                   <span>Email : {COMMERCIAL_EMAIL}</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href={COMMERCIAL_FACEBOOK_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-slate-300 hover:text-blue-400 transition-colors"
+                >
+                  <Facebook className="w-4 h-4 text-blue-400 fill-current" />
+                  <span>Facebook : <strong>Page Officielle SMV Trading</strong></span>
                 </a>
               </li>
               <li>

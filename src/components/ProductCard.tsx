@@ -43,10 +43,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           />
 
           {/* Code Badge */}
-          <div className="absolute top-2.5 left-2.5">
+          <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
             <span className="inline-flex items-center px-2 py-1 rounded bg-slate-900 text-white font-mono font-bold text-xs tracking-wider shadow-xs">
               #{product.code}
             </span>
+            {product.isPromo && product.discountPercent && (
+              <span className="inline-flex items-center px-2 py-1 rounded bg-amber-600 text-white font-mono font-extrabold text-xs tracking-tight shadow-xs animate-pulse">
+                -{product.discountPercent}%
+              </span>
+            )}
+            {product.isNewArrival && (
+              <span className="inline-flex items-center px-2 py-1 rounded bg-emerald-600 text-white font-bold text-xs tracking-tight shadow-xs">
+                {product.arrivalBadge || 'Nouveauté'}
+              </span>
+            )}
           </div>
 
           {/* Brand Badge */}
@@ -89,6 +99,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {product.name}
           </h3>
 
+          {/* Promo or novelty description if any */}
+          {product.promoDescription && (
+            <p className="text-[11px] font-medium text-amber-800 bg-amber-50/80 px-2 py-1 rounded border border-amber-200/60 line-clamp-1">
+              ✨ {product.promoDescription}
+            </p>
+          )}
+
           {/* DLC & Packaging specs */}
           <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-50 rounded-lg p-2 border border-slate-100 text-slate-600">
             <div className="flex items-center gap-1.5 truncate" title={product.dlc}>
@@ -109,9 +126,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         
         {/* Price Row */}
         <div className="flex items-baseline justify-between border-t border-slate-100 pt-3">
-          <span className="text-xs text-slate-500 font-medium">Tarif unitaire :</span>
+          <div className="flex flex-col">
+            <span className="text-xs text-slate-500 font-medium">Tarif unitaire :</span>
+            {product.isPromo && product.originalPriceFormatted && (
+              <span className="text-[11px] text-slate-400 line-through font-mono">
+                {product.originalPriceFormatted}
+              </span>
+            )}
+          </div>
           <div className="text-right">
-            <span className="text-lg font-bold font-mono tabular-nums text-slate-900">
+            <span className={`text-lg font-bold font-mono tabular-nums ${product.isPromo ? 'text-amber-700 font-extrabold' : 'text-slate-900'}`}>
               {formatDT(product.price)}
             </span>
             {product.isPerKg && (

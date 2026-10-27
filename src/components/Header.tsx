@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Phone, MessageSquare, Search, Menu, X, FileText, Mail } from 'lucide-react';
-import { COMMERCIAL_PHONE_DISPLAY, COMMERCIAL_PHONE_INTL, COMMERCIAL_EMAIL } from '../utils/formatters';
+import { ShoppingCart, Phone, MessageSquare, Search, Menu, X, FileText, Mail, Facebook, Bell, Sparkles } from 'lucide-react';
+import { COMMERCIAL_PHONE_DISPLAY, COMMERCIAL_PHONE_INTL, COMMERCIAL_EMAIL, COMMERCIAL_FACEBOOK_URL } from '../utils/formatters';
 
 interface HeaderProps {
   cartCount: number;
@@ -11,6 +11,9 @@ interface HeaderProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onOpenPdfModal: () => void;
+  unreadNotificationsCount: number;
+  onOpenNotifications: () => void;
+  onScrollToPromotions: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -22,6 +25,9 @@ export const Header: React.FC<HeaderProps> = ({
   searchQuery,
   onSearchChange,
   onOpenPdfModal,
+  unreadNotificationsCount,
+  onOpenNotifications,
+  onScrollToPromotions,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -38,7 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="hidden md:inline text-slate-400">Catalogue des Prix Officiel</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <a
               href={`tel:+${COMMERCIAL_PHONE_INTL}`}
               className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors"
@@ -54,6 +60,17 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Mail className="w-3.5 h-3.5 text-blue-400" />
               <span>{COMMERCIAL_EMAIL}</span>
+            </a>
+            <span className="text-slate-600 hidden md:inline">·</span>
+            <a
+              href={COMMERCIAL_FACEBOOK_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-slate-300 hover:text-blue-400 transition-colors"
+              title="Page Facebook officielle SMV Trading"
+            >
+              <Facebook className="w-3.5 h-3.5 text-blue-400 fill-current" />
+              <span className="hidden sm:inline">Facebook</span>
             </a>
           </div>
         </div>
@@ -110,10 +127,35 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Right Actions */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             
+            {/* Quick Promos & Novelties Jump Button */}
+            <button
+              onClick={onScrollToPromotions}
+              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200/80 rounded-lg transition-colors cursor-pointer"
+              title="Consulter les promotions et nouveaux arrivages"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <span>Promos & Arrivages</span>
+            </button>
+
+            {/* Notification Bell Button */}
+            <button
+              onClick={onOpenNotifications}
+              className="relative p-2.5 text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+              title="Centre de notifications et nouveautés"
+              aria-label="Voir les notifications"
+            >
+              <Bell className="w-5 h-5 text-slate-700" />
+              {unreadNotificationsCount > 0 && (
+                <span className="absolute top-1 right-1 flex items-center justify-center min-w-4 h-4 px-1 rounded-full bg-amber-500 text-slate-950 text-[10px] font-mono font-black shadow-xs animate-bounce">
+                  {unreadNotificationsCount}
+                </span>
+              )}
+            </button>
+
             {/* View Original PDF button */}
             <button
               onClick={onOpenPdfModal}
-              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+              className="hidden xl:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
               title="Consulter le catalogue PDF original"
             >
               <FileText className="w-3.5 h-3.5 text-slate-500" />
@@ -122,7 +164,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Direct WhatsApp Callout */}
             <a
-              href={`https://wa.me/${COMMERCIAL_PHONE_INTL}?text=${encodeURIComponent('Bonjour SMV Trading, je souhaite avoir des informations sur votre catalogue.')}`}
+              href={`https://wa.me/${COMMERCIAL_PHONE_INTL}?text=${encodeURIComponent('Bonjour SMV Trading, je souhaite avoir des informations sur votre catalogue et vos promotions.')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors"
@@ -165,6 +207,32 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Mobile Search & Categories Drawer */}
         {mobileMenuOpen && (
           <div className="md:hidden bg-white border-b border-slate-200 px-4 py-4 space-y-3">
+            
+            {/* Quick Promos Mobile Button */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  onScrollToPromotions();
+                  setMobileMenuOpen(false);
+                }}
+                className="flex-1 py-2 px-3 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+                <span>Zone Promotions & Nouveautés</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  onOpenNotifications();
+                  setMobileMenuOpen(false);
+                }}
+                className="py-2 px-3 bg-slate-100 text-slate-800 rounded-lg text-xs font-bold flex items-center gap-1.5"
+              >
+                <Bell className="w-3.5 h-3.5 text-slate-600" />
+                <span>Alertes ({unreadNotificationsCount})</span>
+              </button>
+            </div>
+
             <div className="relative w-full">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
@@ -193,7 +261,7 @@ export const Header: React.FC<HeaderProps> = ({
               ))}
             </div>
 
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+            <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
               <button
                 onClick={() => {
                   onOpenPdfModal();
@@ -202,8 +270,17 @@ export const Header: React.FC<HeaderProps> = ({
                 className="flex items-center gap-1.5 text-emerald-700 font-semibold"
               >
                 <FileText className="w-4 h-4" />
-                <span>Télécharger le PDF Original</span>
+                <span>PDF Original</span>
               </button>
+              <a
+                href={COMMERCIAL_FACEBOOK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-blue-600 font-semibold"
+              >
+                <Facebook className="w-3.5 h-3.5 fill-current" />
+                <span>Page Facebook</span>
+              </a>
               <a
                 href={`tel:+${COMMERCIAL_PHONE_INTL}`}
                 className="flex items-center gap-1 text-slate-900 font-semibold"

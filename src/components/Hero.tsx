@@ -1,14 +1,20 @@
 import React from 'react';
-import { Phone, MessageSquare, Download, CheckCircle, Package, Truck, Clock, Mail } from 'lucide-react';
-import { COMMERCIAL_PHONE_DISPLAY, COMMERCIAL_PHONE_INTL, COMMERCIAL_EMAIL } from '../utils/formatters';
+import { Phone, MessageSquare, Download, CheckCircle, Package, Truck, Clock, Mail, Facebook } from 'lucide-react';
+import { COMMERCIAL_PHONE_DISPLAY, COMMERCIAL_PHONE_INTL, COMMERCIAL_EMAIL, COMMERCIAL_FACEBOOK_URL } from '../utils/formatters';
 
 interface HeroProps {
   totalProductsCount: number;
   onExploreClick: () => void;
   onOpenPdfModal: () => void;
+  onExplorePromotions?: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ totalProductsCount, onExploreClick, onOpenPdfModal }) => {
+export const Hero: React.FC<HeroProps> = ({ 
+  totalProductsCount, 
+  onExploreClick, 
+  onOpenPdfModal,
+  onExplorePromotions 
+}) => {
   return (
     <section className="bg-gradient-to-b from-slate-900 to-slate-800 text-white pt-8 pb-12 lg:pt-12 lg:pb-16 border-b border-slate-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
@@ -36,6 +42,16 @@ export const Hero: React.FC<HeroProps> = ({ totalProductsCount, onExploreClick, 
 
             {/* CTAs */}
             <div className="pt-2 flex flex-wrap items-center gap-3">
+              {onExplorePromotions && (
+                <button
+                  onClick={onExplorePromotions}
+                  className="px-5 py-3 text-xs sm:text-sm font-bold text-white bg-amber-600 hover:bg-amber-500 rounded-lg shadow-md transition-all cursor-pointer flex items-center gap-2"
+                >
+                  <span className="text-amber-200">✨</span>
+                  <span>Promos & Nouveautés (-15%)</span>
+                </button>
+              )}
+
               <button
                 onClick={onExploreClick}
                 className="px-5 py-3 text-xs sm:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg shadow-md transition-all cursor-pointer flex items-center gap-2"
@@ -125,6 +141,21 @@ export const Hero: React.FC<HeroProps> = ({ totalProductsCount, onExploreClick, 
                 </span>
                 <a href={`mailto:${COMMERCIAL_EMAIL}`} className="font-mono text-emerald-300 font-semibold hover:underline">
                   {COMMERCIAL_EMAIL}
+                </a>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-900/60 border border-slate-700/60">
+                <span className="text-slate-400 flex items-center gap-2">
+                  <Facebook className="w-4 h-4 text-blue-400 fill-current" />
+                  Page Facebook :
+                </span>
+                <a
+                  href={COMMERCIAL_FACEBOOK_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-blue-400 hover:text-blue-300 hover:underline"
+                >
+                  SMV Trading (Page Officielle)
                 </a>
               </div>
             </div>

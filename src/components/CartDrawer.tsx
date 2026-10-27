@@ -14,7 +14,8 @@ import {
   FileText,
   Building2,
   Send,
-  ExternalLink
+  ExternalLink,
+  Facebook
 } from 'lucide-react';
 import { SMVCartItem, CustomerOrderInfo } from '../types/ecommerce';
 import { 
@@ -23,6 +24,7 @@ import {
   COMMERCIAL_PHONE_INTL, 
   COMMERCIAL_PHONE_DISPLAY, 
   COMMERCIAL_EMAIL,
+  COMMERCIAL_FACEBOOK_URL,
   getMailtoUrl
 } from '../utils/formatters';
 
@@ -423,15 +425,29 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
             </div>
 
-            {/* Email destination reminder */}
-            <div className="pt-1 text-[11px] text-center text-slate-500 flex items-center justify-center gap-2">
-              <span>Email commercial officiel :</span>
-              <a
-                href={`mailto:${COMMERCIAL_EMAIL}`}
-                className="font-bold text-blue-700 hover:underline font-mono"
-              >
-                {COMMERCIAL_EMAIL}
-              </a>
+            {/* Email & Facebook destination reminder */}
+            <div className="pt-2 text-[11px] text-center text-slate-500 border-t border-slate-200/80 space-y-1">
+              <div className="flex flex-wrap items-center justify-center gap-1.5">
+                <span>Email commercial officiel :</span>
+                <a
+                  href={`mailto:${COMMERCIAL_EMAIL}`}
+                  className="font-bold text-blue-700 hover:underline font-mono"
+                >
+                  {COMMERCIAL_EMAIL}
+                </a>
+              </div>
+              <div className="flex items-center justify-center gap-1.5 text-slate-500">
+                <span>Page officielle :</span>
+                <a
+                  href={COMMERCIAL_FACEBOOK_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-semibold text-blue-600 hover:underline"
+                >
+                  <Facebook className="w-3 h-3 fill-current" />
+                  <span>SMV Trading sur Facebook</span>
+                </a>
+              </div>
             </div>
 
           </div>

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { X, Mail, Copy, Check, ExternalLink, Send, Building, ShieldCheck } from 'lucide-react';
+import { X, Mail, Copy, Check, ExternalLink, FileText, Printer, Stamp, Image as ImageIcon, ShieldCheck } from 'lucide-react';
 import { SMVCartItem, CustomerOrderInfo } from '../types/ecommerce';
 import { 
   COMMERCIAL_EMAIL, 
+  formatDT,
   generateEmailSubject, 
   generateProfessionalEmailBody,
   getMailtoUrl,
@@ -16,6 +17,7 @@ interface EmailOrderModalProps {
   items: SMVCartItem[];
   customerInfo: CustomerOrderInfo;
   onSentConfirm?: () => void;
+  onOpenPrintOrder?: () => void;
 }
 
 export const EmailOrderModal: React.FC<EmailOrderModalProps> = ({
@@ -24,14 +26,17 @@ export const EmailOrderModal: React.FC<EmailOrderModalProps> = ({
   items,
   customerInfo,
   onSentConfirm,
+  onOpenPrintOrder,
 }) => {
   if (!isOpen) return null;
 
   const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState<'table' | 'text'>('table');
   const [sentMarked, setSentMarked] = useState(false);
 
   const subject = generateEmailSubject(items, customerInfo);
   const body = generateProfessionalEmailBody(items, customerInfo);
+  const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
   const mailtoUrl = getMailtoUrl(items, customerInfo);
   const gmailUrl = getGmailComposeUrl(items, customerInfo);
@@ -53,7 +58,7 @@ export const EmailOrderModal: React.FC<EmailOrderModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
       <div 
-        className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col my-6 animate-in zoom-in-95 duration-200"
+        className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden border border-slate-200 flex flex-col my-4 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
@@ -64,10 +69,10 @@ export const EmailOrderModal: React.FC<EmailOrderModalProps> = ({
             </div>
             <div>
               <h3 className="font-bold text-sm sm:text-base text-white">
-                Transmission par Email Professionnel
+                Transmission de Commande par Email & PDF
               </h3>
               <p className="text-[11px] text-slate-400">
-                Envoi direct au service commercial : <strong className="text-emerald-400">{COMMERCIAL_EMAIL}</strong>
+                Service commercial officiel : <strong className="text-emerald-400">{COMMERCIAL_EMAIL}</strong>
               </p>
             </div>
           </div>
@@ -84,6 +89,32 @@ export const EmailOrderModal: React.FC<EmailOrderModalProps> = ({
         {/* Modal Body */}
         <div className="p-5 sm:p-6 space-y-5 max-h-[75vh] overflow-y-auto">
           
+          {/* Banner PDF avec Cachet & Logo */}
+          <div className="bg-gradient-to-r from-emerald-900 to-slate-900 text-white rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-emerald-800/60 shadow-xs">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
+                <Stamp className="w-4 h-4 text-amber-400" />
+                <span>Bon de Commande PDF avec Cachet & Logo Personnalisés</span>
+              </div>
+              <p className="text-xs text-slate-300 max-w-lg leading-relaxed">
+                Générez le document PDF officiel où vous pouvez insérer le <strong>logo de votre établissement</strong> et apposer votre <strong>cachet d'entreprise</strong> avant de l'envoyer.
+              </p>
+            </div>
+
+            {onOpenPrintOrder && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenPrintOrder();
+                }}
+                className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider rounded-lg transition-all shadow-md flex items-center gap-2 shrink-0 cursor-pointer"
+              >
+                <Printer className="w-4 h-4" />
+                <span>Générer PDF / Cachet</span>
+              </button>
+            )}
+          </div>
+
           {/* Email Recipient and Subject Info Card */}
           <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 space-y-2.5 text-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200 pb-2">
@@ -95,7 +126,7 @@ export const EmailOrderModal: React.FC<EmailOrderModalProps> = ({
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1 border-b border-slate-200 pb-2">
-              <span className="text-slate-500 font-semibold w-28 shrink-0">Objet du mail :</span>
+              <span className="text-slate-500 font-semibold w-28 shrink-0">Objet :</span>
               <span className="font-medium text-slate-900 bg-white px-2.5 py-1 rounded border border-slate-200 flex-1">
                 {subject}
               </span>
@@ -103,7 +134,7 @@ export const EmailOrderModal: React.FC<EmailOrderModalProps> = ({
 
             {customerInfo.clientEmail && (
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                <span className="text-slate-500 font-semibold w-28">Copie client :</span>
+                <span className="text-slate-500 font-semibold w-28">Email client :</span>
                 <span className="font-mono text-slate-700 bg-white px-2.5 py-1 rounded border border-slate-200">
                   {customerInfo.clientEmail}
                 </span>
@@ -114,7 +145,7 @@ export const EmailOrderModal: React.FC<EmailOrderModalProps> = ({
           {/* Quick Dispatch Buttons (Gmail / Outlook / Default Mail) */}
           <div className="space-y-2">
             <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
-              Choisissez votre moyen d'envoi :
+              1-Clic : Envoyer le mail au commercial :
             </label>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -174,13 +205,33 @@ export const EmailOrderModal: React.FC<EmailOrderModalProps> = ({
             </div>
           </div>
 
-          {/* Body Preview with Copy Option */}
-          <div className="space-y-2">
+          {/* Table Preview and Text Toggle (WITHOUT DLC AS REQUESTED) */}
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-700">Contenu du message professionnel :</span>
+              <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('table')}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                    viewMode === 'table' ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Tableau Visuel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('text')}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                    viewMode === 'text' ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Texte Brut
+                </button>
+              </div>
+
               <button
                 onClick={handleCopy}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-blue-900 cursor-pointer bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200 transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-700 hover:text-blue-900 cursor-pointer bg-blue-50 px-2.5 py-1.5 rounded-md border border-blue-200 transition-colors"
               >
                 {copied ? (
                   <>
@@ -196,32 +247,95 @@ export const EmailOrderModal: React.FC<EmailOrderModalProps> = ({
               </button>
             </div>
 
-            <div className="p-3.5 bg-slate-900 text-slate-200 font-mono text-[11px] rounded-xl border border-slate-800 whitespace-pre-wrap leading-relaxed shadow-inner max-h-56 overflow-y-auto">
-              {body}
-            </div>
+            {/* Mode A: Clean Visual HTML Table (NO DLC) */}
+            {viewMode === 'table' ? (
+              <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-100 text-slate-800 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
+                    <tr>
+                      <th className="p-2.5 w-10 text-center">N°</th>
+                      <th className="p-2.5">Code</th>
+                      <th className="p-2.5">Désignation</th>
+                      <th className="p-2.5">Fournisseur</th>
+                      <th className="p-2.5">Conditionnement</th>
+                      <th className="p-2.5 text-center">Quantité</th>
+                      <th className="p-2.5 text-right">Prix Unit.</th>
+                      <th className="p-2.5 text-right">Total Ligne</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {items.map((item, idx) => (
+                      <tr key={item.product.code} className="hover:bg-slate-50">
+                        <td className="p-2.5 text-center text-slate-400 font-mono text-[11px]">{idx + 1}</td>
+                        <td className="p-2.5 font-mono font-bold text-slate-900">#{item.product.code}</td>
+                        <td className="p-2.5 font-semibold text-slate-900">{item.product.name}</td>
+                        <td className="p-2.5 text-slate-700">{item.product.brand}</td>
+                        <td className="p-2.5 text-slate-500 text-[11px]">{item.product.packing}</td>
+                        <td className="p-2.5 text-center font-bold font-mono">
+                          {item.quantity} {item.product.isPerKg ? 'kg' : 'pcs'}
+                        </td>
+                        <td className="p-2.5 text-right font-mono tabular-nums">{formatDT(item.product.price)}</td>
+                        <td className="p-2.5 text-right font-mono tabular-nums font-bold text-slate-900">
+                          {formatDT(item.product.price * item.quantity)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="bg-slate-50 border-t border-slate-200 font-bold">
+                    <tr>
+                      <td colSpan={7} className="p-2.5 text-right uppercase text-[11px] text-slate-600">Total Indicatif :</td>
+                      <td className="p-2.5 text-right font-mono text-emerald-800 text-sm">{formatDT(total)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            ) : (
+              /* Mode B: Raw Plain-text Table (NO DLC) */
+              <div className="p-3.5 bg-slate-900 text-slate-200 font-mono text-[11px] rounded-xl border border-slate-800 whitespace-pre-wrap leading-relaxed shadow-inner max-h-56 overflow-y-auto">
+                {body}
+              </div>
+            )}
+
           </div>
 
           {/* Confirmation Notice */}
           {sentMarked && (
             <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-xl flex items-center gap-2 text-xs text-emerald-800">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Commande préparée pour <strong>{COMMERCIAL_EMAIL}</strong>. Le service commercial vous contactera dès réception.</span>
+              <span>Commande préparée pour <strong>{COMMERCIAL_EMAIL}</strong>. Vous pouvez y joindre votre bon de commande imprimé en PDF.</span>
             </div>
           )}
 
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-          <p className="text-[11px] text-slate-500">
-            Destinataire officiel : <strong>{COMMERCIAL_EMAIL}</strong>
-          </p>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer"
-          >
-            Fermer
-          </button>
+        <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-xs text-slate-600">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span>Format conforme B2B sans DLC · Exportable en PDF avec cachet</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {onOpenPrintOrder && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenPrintOrder();
+                }}
+                className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span>Ouvrir Bon de Commande PDF</span>
+              </button>
+            )}
+
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+            >
+              Fermer
+            </button>
+          </div>
         </div>
 
       </div>
